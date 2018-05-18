@@ -8,6 +8,8 @@ from lomond.websocket import WebSocket
 from lomond.persist import persist
 import lomond.events as events
 from time import sleep
+import lzstring
+lz = lzstring.LZString()
 
 s = requests.Session()
 
@@ -242,8 +244,6 @@ for event in ws:
                 if (j['type'] == 'page') and (j['page'] == 'clans'):
                     print("Processing surrounding clan levels")
                     r = j['result']
-                    import lzstring
-                    lz = lzstring.LZString()
                     r = json.loads(lz.decompressFromBase64(r))
                     maxidx = r['ct']-1
                     idx = None
