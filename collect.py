@@ -242,6 +242,9 @@ for event in ws:
                 if (j['type'] == 'page') and (j['page'] == 'clans'):
                     print("Processing surrounding clan levels")
                     r = j['result']
+                    import lzstring
+                    lz = lzstring.LZString()
+                    r = json.loads(lz.decompressFromBase64(r))
                     maxidx = r['ct']-1
                     idx = None
                     for i in range(len(r['cl'])):
