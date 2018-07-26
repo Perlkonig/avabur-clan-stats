@@ -152,7 +152,13 @@ c = conn.cursor()
 try:
     for resource in resources.keys():
         for rec in resources[resource].values():
-            c.execute("INSERT INTO market (tid, datestamp, resource, quantity, price, seller) VALUES (?, date('now'), ?, ?, ?, ?)", (rec['tid'], rec['n'], rec['v'], rec['price'], rec['seller']))
+            try:            
+                c.execute("INSERT INTO market (tid, datestamp, resource, quantity, price, seller) VALUES (?, date('now'), ?, ?, ?, ?)", (rec['tid'], rec['n'], rec['v'], rec['price'], rec['seller']))
+            except Exception as e:
+                print("Couldn't store the following record:\n{}".format(rec))
+                print("Received the following error:\n{}".format(repr(e)))
+                continue
+
 
     #convert singular to plural
     pairs = [

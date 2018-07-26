@@ -67,6 +67,10 @@ def calcMedian(lst):
 with open('/home/protected/avabur/settings.json') as j:
     settings = json.load(j)
 
+clandays = 0
+if 'clandays' in settings:
+    clandays = int(settings['clandays'])
+
 #Load/Initialize database
 try:
     conn = sqlite3.connect(settings['dbfile'])
@@ -75,7 +79,10 @@ except sqlite3.DatabaseError as e:
 c = conn.cursor()
 
 #xp gained
-c.execute("SELECT datestamp, xp FROM clan ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT datestamp, xp FROM clan WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT datestamp, xp FROM clan ORDER BY datestamp")
 recs = c.fetchall()
 dates = [x[0] for x in recs]
 xps = [x[1] for x in recs]
@@ -94,7 +101,10 @@ with open(os.path.join(settings['csvdir'], 'clan_xp.csv'), 'w', newline='') as c
         csvw.writerow(row)
 
 #total actions
-c.execute("SELECT datestamp, sum(totalacts), count() FROM members GROUP BY datestamp ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT datestamp, sum(totalacts), count() FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) GROUP BY datestamp ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT datestamp, sum(totalacts), count() FROM members GROUP BY datestamp ORDER BY datestamp")
 recs = c.fetchall()
 dates = [x[0] for x in recs]
 totals = [x[1] for x in recs]
@@ -133,7 +143,10 @@ with open(os.path.join(settings['csvdir'], 'clan_actions_avg.csv'), 'w', newline
         csvw.writerow(row)
 
 #aggregate donations (other than xp)
-c.execute("SELECT datestamp, d_crystals, d_platinum, d_gold, d_food, d_wood, d_iron, d_stone FROM members GROUP BY datestamp ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT datestamp, d_crystals, d_platinum, d_gold, d_food, d_wood, d_iron, d_stone FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) GROUP BY datestamp ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT datestamp, d_crystals, d_platinum, d_gold, d_food, d_wood, d_iron, d_stone FROM members GROUP BY datestamp ORDER BY datestamp")
 recs = c.fetchall()
 dates = [x[0] for x in recs]
 plat = [x[2] for x in recs]
@@ -171,7 +184,10 @@ c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY use
 usernames = [x[0] for x in c.fetchall()]
 
 ## Get list of distinct dates
-c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT DISTINCT(datestamp) FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
 alldates = [x[0] for x in c.fetchall()]
 alldates.pop(0)
 
@@ -179,7 +195,11 @@ alldates.pop(0)
 rawdata = dict()
 for u in usernames:
     rawdata[u] = list()
-    for row in c.execute("SELECT datestamp, totalacts FROM members WHERE username=?", [u]):
+    if (clandays > 0):
+        c.execute("SELECT datestamp, totalacts FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?)", [u, clandays])
+    else:
+        c.execute("SELECT datestamp, totalacts FROM members WHERE username=?", [u])
+    for row in c:
         rawdata[u].append((row[0], row[1]))
 
 ## Now turn that into deltas for each user
@@ -222,14 +242,21 @@ c.execute("SELECT DISTINCT(username) FROM members ORDER BY username COLLATE NOCA
 usernames = [x[0] for x in c.fetchall()]
 
 ## Get list of distinct dates
-c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT DISTINCT(datestamp) FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
 alldates = [x[0] for x in c.fetchall()]
 
 ## Now get their total action data
 rawdata = dict()
 for u in usernames:
     rawdata[u] = list()
-    for row in c.execute("SELECT datestamp, stats FROM members WHERE username=?", [u]):
+    if (clandays > 0):
+        c.execute("SELECT datestamp, stats FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?)", [u, clandays])
+    else:
+        c.execute("SELECT datestamp, stats FROM members WHERE username=?", [u])
+    for row in c:
         rawdata[u].append((row[0], row[1]))
 
 ## Now convert that into a format suitable for CSV output (rows are dates, users are columns)
@@ -268,7 +295,10 @@ c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY use
 usernames = [x[0] for x in c.fetchall()]
 
 ## Get list of distinct dates
-c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT DISTINCT(datestamp) FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
 alldates = [x[0] for x in c.fetchall()]
 alldates.pop(0)
 
@@ -276,7 +306,11 @@ alldates.pop(0)
 rawdata = dict()
 for u in usernames:
     rawdata[u] = list()
-    for row in c.execute("SELECT datestamp, d_xp FROM members WHERE username=?", [u]):
+    if (clandays > 0):
+        c.execute("SELECT datestamp, d_xp FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?)", [u, clandays])
+    else:
+        c.execute("SELECT datestamp, d_xp FROM members WHERE username=?", [u])
+    for row in c:
         rawdata[u].append((row[0], row[1]))
 
 ## Now turn that into deltas for each user
@@ -337,7 +371,10 @@ c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY use
 usernames = [x[0] for x in c.fetchall()]
 
 ## Get list of distinct dates
-c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT DISTINCT(datestamp) FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
 alldates = [x[0] for x in c.fetchall()]
 alldates.pop(0)
 
@@ -345,7 +382,11 @@ alldates.pop(0)
 rawdata = dict()
 for u in usernames:
     rawdata[u] = list()
-    for row in c.execute("SELECT datestamp, d_gold FROM members WHERE username=?", [u]):
+    if (clandays > 0):
+        c.execute("SELECT datestamp, d_gold FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?)", [u, clandays])
+    else:
+        c.execute("SELECT datestamp, d_gold FROM members WHERE username=?", [u])
+    for row in c:
         rawdata[u].append((row[0], row[1]))
 
 ## Now turn that into deltas for each user
@@ -392,7 +433,10 @@ c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY use
 usernames = [x[0] for x in c.fetchall()]
 
 ## Get list of distinct dates
-c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT DISTINCT(datestamp) FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:    
+    c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
 alldates = [x[0] for x in c.fetchall()]
 alldates.pop(0)
 
@@ -400,7 +444,11 @@ alldates.pop(0)
 rawdata = dict()
 for u in usernames:
     rawdata[u] = list()
-    for row in c.execute("SELECT datestamp, d_platinum FROM members WHERE username=?", [u]):
+    if (clandays > 0):
+        c.execute("SELECT datestamp, d_platinum FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?)", [u, clandays])
+    else:
+        c.execute("SELECT datestamp, d_platinum FROM members WHERE username=?", [u])
+    for row in c:
         rawdata[u].append((row[0], row[1]))
 
 ## Now turn that into deltas for each user
@@ -466,7 +514,11 @@ if 'actions_outliers_percent' in settings:
 avgacts = list()
 for u in usernames:
     totals = []
-    for row in c.execute("SELECT totalacts FROM members WHERE username=? ORDER BY datestamp", [u]):
+    if (clandays > 0):
+        c.execute("SELECT totalacts FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, clandays])
+    else:
+        c.execute("SELECT totalacts FROM members WHERE username=? ORDER BY datestamp", [u])
+    for row in c:
         totals.append(row[0])
     deltas = calcDeltas(totals)
     deltas = trimOutliers(deltas, actions_outliers_percent)
@@ -496,7 +548,11 @@ usernames = [x[0] for x in c.fetchall()]
 medacts = list()
 for u in usernames:
     totals = []
-    for row in c.execute("SELECT totalacts FROM members WHERE username=? ORDER BY datestamp", [u]):
+    if (clandays > 0):
+        c.execute("SELECT totalacts FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, clandays])
+    else:
+        c.execute("SELECT totalacts FROM members WHERE username=? ORDER BY datestamp", [u])
+    for row in c:
         totals.append(row[0])
     deltas = calcDeltas(totals)
     deltas = trimOutliers(deltas, actions_outliers_percent)
@@ -517,7 +573,11 @@ with open(os.path.join(settings['csvdir'], 'individual_medacts.csv'), 'w', newli
 with open(os.path.join(settings['csvdir'], 'clan_treasury.csv'), 'w', newline='') as csvfile:
     csvw = csv.writer(csvfile, dialect=csv.excel)
     csvw.writerow(["Date","Crystals", "Platinum", "Gold", "Food", "Wood", "Iron", "Stone"])
-    for row in c.execute("SELECT datestamp, crystals, platinum, gold, food, wood, iron, stone FROM clan ORDER BY datestamp"):
+    if (clandays > 0):
+        c.execute("SELECT datestamp, crystals, platinum, gold, food, wood, iron, stone FROM clan WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+    else:
+        c.execute("SELECT datestamp, crystals, platinum, gold, food, wood, iron, stone FROM clan ORDER BY datestamp")
+    for row in c:
         csvw.writerow(row)
 
 # Battler/harvest ratio
@@ -556,7 +616,11 @@ with open(os.path.join(settings['csvdir'], 'ranks.json'), 'w', newline='') as cs
 #Nearest clans
 lvldata = list()
 xpdata = list()
-for row in c.execute("SELECT datestamp, ours, above, below FROM nearestclans ORDER BY datestamp"):
+if (clandays > 0):
+    c.execute("SELECT datestamp, ours, above, below FROM nearestclans WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT datestamp, ours, above, below FROM nearestclans ORDER BY datestamp")
+for row in c:
     lvlnode = [row[0]]
     xpnode = [row[0]]
     if row[2] is not None:
@@ -594,7 +658,10 @@ c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY use
 usernames = [x[0] for x in c.fetchall()]
 
 ## Get list of distinct dates
-c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
+if (clandays > 0):
+    c.execute("SELECT DISTINCT(datestamp) FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+else:
+    c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
 alldates = [x[0] for x in c.fetchall()]
 alldates.pop(0)
 
@@ -604,7 +671,11 @@ rawdeaths = dict()
 for u in usernames:
     rawkills[u] = list()
     rawdeaths[u] = list()
-    for row in c.execute("SELECT datestamp, kills, deaths FROM members WHERE username=?", [u]):
+    if (clandays > 0):
+        c.execute("SELECT datestamp, kills, deaths FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?)", [u, clandays])
+    else:
+        c.execute("SELECT datestamp, kills, deaths FROM members WHERE username=?", [u])
+    for row in c:
         rawkills[u].append((row[0], row[1]))
         rawdeaths[u].append((row[0], row[2]))
 
