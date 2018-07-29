@@ -41,6 +41,7 @@ There are also five other settings you can set to change how the graphs are rend
   * `actions_outliers_percent`: Applies to the individual average and median actions graphs. Determines how much to chop off each end of the player's action counts before calculating the average/median. Defaults to 0.1 (10%).
   * `clandays`: The number of days of data of clan stats to render.
   * `marketdays`: The number of days of data of market stats to render.
+  * `actiondays`: Now that date selectors have been added, `clandays` may be less useful. The `actiondays` setting only affects the average and median action counts. So now you can show all data but only look at the past X number of days when calculating action counts.
 
 Currently, the defaults are hard coded into the HTML file. So if you change them, you'll want to update the graph captions where appropriate. Sorry. One day I'll automate that.
 

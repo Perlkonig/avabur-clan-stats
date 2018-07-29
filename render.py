@@ -70,6 +70,9 @@ with open('/home/protected/avabur/settings.json') as j:
 clandays = 0
 if 'clandays' in settings:
     clandays = int(settings['clandays'])
+actiondays = 0
+if 'actiondays' in settings:
+    actiondays = int(settings['actiondays'])
 
 #Load/Initialize database
 try:
@@ -514,8 +517,8 @@ if 'actions_outliers_percent' in settings:
 avgacts = list()
 for u in usernames:
     totals = []
-    if (clandays > 0):
-        c.execute("SELECT totalacts FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, clandays])
+    if (actiondays > 0):
+        c.execute("SELECT totalacts FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, actiondays])
     else:
         c.execute("SELECT totalacts FROM members WHERE username=? ORDER BY datestamp", [u])
     for row in c:
@@ -548,8 +551,8 @@ usernames = [x[0] for x in c.fetchall()]
 medacts = list()
 for u in usernames:
     totals = []
-    if (clandays > 0):
-        c.execute("SELECT totalacts FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, clandays])
+    if (actiondays > 0):
+        c.execute("SELECT totalacts FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, actiondays])
     else:
         c.execute("SELECT totalacts FROM members WHERE username=? ORDER BY datestamp", [u])
     for row in c:

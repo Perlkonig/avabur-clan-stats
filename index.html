@@ -3,9 +3,14 @@
 		<title>Necropolis Clan Stats</title>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+		<!--
 		<script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/modules/data.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
+		-->
+		<script type="text/javascript" src="https://code.highcharts.com/stock/highstock.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/modules/data.js"></script>
+		<script type="text/javascript" src="https://code.highcharts.com/stock/modules/exporting.js"></script>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
@@ -34,7 +39,12 @@
 			$.get('clan_xp.csv', function(csv) {
 			    $('#clan_xp').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -52,7 +62,12 @@
 			$.get('clan_actions_total.csv', function(csv) {
 			    $('#clan_actions_total').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -72,7 +87,12 @@
 			$.get('clan_actions_avg.csv', function(csv) {
 			    $('#clan_actions_avg').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -92,7 +112,12 @@
 			$.get('clan_donations_plat.csv', function(csv) {
 			    $('#clan_donations_plat').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -112,7 +137,12 @@
 			$.get('clan_donations_gold.csv', function(csv) {
 			    $('#clan_donations_gold').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -132,6 +162,7 @@
 			$.get('individual_lastactive.csv', function(csv) {
 			    $('#individual_lastactive').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'bar'
 			        },
 			        data: {
@@ -159,7 +190,12 @@
 			$.get('individual_actions.csv', function(csv) {
 			    $('#individual_actions').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -211,7 +247,12 @@
 			$.get('individual_xpdonated.csv', function(csv) {
 			    $('#individual_xpdonated').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -236,7 +277,12 @@
 			$.get('individual_kills.csv', function(csv) {
 			    $('#individual_kills').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -264,7 +310,12 @@
 			$.get('individual_deaths.csv', function(csv) {
 			    $('#individual_deaths').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -292,7 +343,12 @@
 			$.get('individual_kdratio.csv', function(csv) {
 			    $('#individual_kdratio').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        plotOptions: {
 			        	series: {
@@ -325,7 +381,12 @@
 			$.get('individual_kdpercent.csv', function(csv) {
 			    $('#individual_kdpercent').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        plotOptions: {
 			        	series: {
@@ -358,7 +419,12 @@
 			$.get('individual_golddonated.csv', function(csv) {
 			    $('#individual_golddonated').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -383,7 +449,12 @@
 			$.get('individual_platdonated.csv', function(csv) {
 			    $('#individual_platdonated').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -408,7 +479,12 @@
 			$.get('clan_treasury.csv', function(csv) {
 			    $('#clan_treasury').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -436,6 +512,7 @@
 			$.get('individual_avgacts.csv', function(csv) {
 			    $('#individual_avgacts').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'column'
 			        },
 			        xAxis: {
@@ -449,16 +526,17 @@
 			            csv: csv,
 			        },
 			        title: {
-			            text: 'Average Actions (Trimmed)'
+			            text: 'Average Actions Over Past 60 Days (Trimmed)'
 			        },
 			        subtitle: {
-			        	text: "(top and bottom 10% of each member's action count ignored)"
+			        	text: "(top and bottom 5% of each member's action count ignored)"
 			        }
 			    });
 			});
 			$.get('individual_medacts.csv', function(csv) {
 			    $('#individual_medacts').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'column'
 			        },
 			        xAxis: {
@@ -472,16 +550,17 @@
 			            csv: csv,
 			        },
 			        title: {
-			            text: 'Median Actions (Trimmed)'
+			            text: 'Median Actions Over Past 60 Days (Trimmed)'
 			        },
 			        subtitle: {
-			        	text: "(top and bottom 10% of each member's action count ignored)"
+			        	text: "(top and bottom 5% of each member's action count ignored)"
 			        }
 			    });
 			});
 			$.get('individual_ratios.csv', function(csv) {
 			    $('#individual_ratios').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
 			        },
 			        xAxis: {
@@ -531,7 +610,12 @@
 			$.get('clan_nearest_lvl.csv', function(csv) {
 			    $('#clan_nearest_lvl').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -559,7 +643,12 @@
 			$.get('clan_nearest_xp.csv', function(csv) {
 			    $('#clan_nearest_xp').highcharts({
 			        chart: {
+			        	height: 500,
 			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0
 			        },
 			        data: {
 			            csv: csv,
@@ -688,6 +777,8 @@
 					<button id="show-all-kills">Show All</button>
 					<button id="hide-all-kills">Hide All</button>
 				</div>
+			</div>
+			<div class="row">
 				<div class="col">
 					<div id="individual_deaths"></div>
 					<button id="show-all-deaths">Show All</button>
