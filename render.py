@@ -594,7 +594,12 @@ usernames = [x[0] for x in c.fetchall()]
 
 ## Get battle/harvest data
 treedata = list()
-for row in c.execute("SELECT username, ((max(kills)-min(kills))+(max(deaths)-min(deaths))) AS battles, ( (max(harvests)-min(harvests))+(max(craftingacts)-min(craftingacts))+(max(carvingacts)-min(carvingacts))) FROM members GROUP BY username"):
+if (actiondays > 0):
+    c.execute("SELECT username, ((max(kills)-min(kills))+(max(deaths)-min(deaths))) AS battles, ( (max(harvests)-min(harvests))+(max(craftingacts)-min(craftingacts))+(max(carvingacts)-min(carvingacts)) ) AS harvests FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) GROUP BY username", [actiondays])
+else:
+    c.execute("SELECT username, ((max(kills)-min(kills))+(max(deaths)-min(deaths))) AS battles, ( (max(harvests)-min(harvests))+(max(craftingacts)-min(craftingacts))+(max(carvingacts)-min(carvingacts)) ) AS harvests FROM members GROUP BY username")
+
+for row in c:
     if row[0] in usernames:
         total = row[1] + row[2]
         ratio = 0

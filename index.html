@@ -2,17 +2,9 @@
 	<head>
 		<title>Necropolis Clan Stats</title>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-		<!--
-		<script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/modules/data.js"></script>
-		<script type="text/javascript" src="https://code.highcharts.com/modules/exporting.js"></script>
-		-->
 		<script type="text/javascript" src="https://code.highcharts.com/stock/highstock.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/modules/data.js"></script>
 		<script type="text/javascript" src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
 		<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 
@@ -33,13 +25,29 @@
 			caption {
 				font-weight: bolder;
 			}
+			.chart {
+				height: 500px;
+			}
+			.modal {
+			    position: fixed;
+			    width: 100vw;
+			    height: 100vh;
+			    top: 0;
+			    left: 0;
+			    background: rgba(0, 0, 0, 0.7);
+			    z-index: 1000;
+			}
+			.modal .chart {
+			    height: 90%;
+			    width: 90%;
+			    max-width: none;
+			}
 		</style>
 
 		<script>
 			$.get('clan_xp.csv', function(csv) {
 			    $('#clan_xp').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -62,7 +70,6 @@
 			$.get('clan_actions_total.csv', function(csv) {
 			    $('#clan_actions_total').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -87,7 +94,6 @@
 			$.get('clan_actions_avg.csv', function(csv) {
 			    $('#clan_actions_avg').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -112,7 +118,6 @@
 			$.get('clan_donations_plat.csv', function(csv) {
 			    $('#clan_donations_plat').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -137,7 +142,6 @@
 			$.get('clan_donations_gold.csv', function(csv) {
 			    $('#clan_donations_gold').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -162,7 +166,6 @@
 			$.get('individual_lastactive.csv', function(csv) {
 			    $('#individual_lastactive').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'bar'
 			        },
 			        data: {
@@ -190,7 +193,6 @@
 			$.get('individual_actions.csv', function(csv) {
 			    $('#individual_actions').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -247,7 +249,6 @@
 			$.get('individual_xpdonated.csv', function(csv) {
 			    $('#individual_xpdonated').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -277,7 +278,6 @@
 			$.get('individual_kills.csv', function(csv) {
 			    $('#individual_kills').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -310,7 +310,6 @@
 			$.get('individual_deaths.csv', function(csv) {
 			    $('#individual_deaths').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -343,7 +342,6 @@
 			$.get('individual_kdratio.csv', function(csv) {
 			    $('#individual_kdratio').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -381,7 +379,6 @@
 			$.get('individual_kdpercent.csv', function(csv) {
 			    $('#individual_kdpercent').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -419,7 +416,6 @@
 			$.get('individual_golddonated.csv', function(csv) {
 			    $('#individual_golddonated').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -449,7 +445,6 @@
 			$.get('individual_platdonated.csv', function(csv) {
 			    $('#individual_platdonated').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -479,7 +474,6 @@
 			$.get('clan_treasury.csv', function(csv) {
 			    $('#clan_treasury').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -512,7 +506,6 @@
 			$.get('individual_avgacts.csv', function(csv) {
 			    $('#individual_avgacts').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'column'
 			        },
 			        xAxis: {
@@ -536,7 +529,6 @@
 			$.get('individual_medacts.csv', function(csv) {
 			    $('#individual_medacts').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'column'
 			        },
 			        xAxis: {
@@ -560,7 +552,6 @@
 			$.get('individual_ratios.csv', function(csv) {
 			    $('#individual_ratios').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        xAxis: {
@@ -604,13 +595,15 @@
 			        },
 			        title: {
 			            text: 'Battler/TSer Ratio'
+			        },
+			        subtitle: {
+			        	text: "(data from past 60 days)"
 			        }
 			    });
 			});
 			$.get('clan_nearest_lvl.csv', function(csv) {
 			    $('#clan_nearest_lvl').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -643,7 +636,6 @@
 			$.get('clan_nearest_xp.csv', function(csv) {
 			    $('#clan_nearest_xp').highcharts({
 			        chart: {
-			        	height: 500,
 			            type: 'line'
 			        },
 			        rangeSelector: {
@@ -681,6 +673,12 @@
 					'ajax': 'ranks.json',
 					'order': [[2, "asc"]] 
 				} );
+				$('.highcharts-title').on('mousedown', function () {
+					console.log("Title clicked");
+					var parent = $(this).closest(".chart-container");
+					parent.toggleClass('modal');
+					parent.children(".chart").highcharts().reflow();
+				});
 			} );
 		</script>
 	</head>
@@ -691,113 +689,87 @@
 			<a href="./market">Historical Market Stats</a>
 		</p>
 		<div class="container">
-			<div class="row">
-				<div class="col">
-					<div id="clan_xp"></div>
-				</div>
-				<div class="col">
-					<div id="individual_xpdonated"></div>
-					<button id="show-all-xp">Show All</button>
-					<button id="hide-all-xp">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="clan_xp" class="chart"></div>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_actions"></div>
-					<button id="show-all-acts">Show All</button>
-					<button id="hide-all-acts">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="individual_xpdonated" class="chart"></div>
+				<button id="show-all-xp">Show All</button>
+				<button id="hide-all-xp">Hide All</button>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_avgacts"></div>
-				</div>
+			<div class="chart-container">
+				<div id="individual_actions" class="chart"></div>
+				<button id="show-all-acts">Show All</button>
+				<button id="hide-all-acts">Hide All</button>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_medacts"></div>
-				</div>
+			<div class="chart-container">
+				<div id="individual_avgacts" class="chart"></div>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_golddonated"></div>
-					<button id="show-all-gold">Show All</button>
-					<button id="hide-all-gold">Hide All</button>
-				</div>
-				<div class="col">
-					<div id="individual_platdonated"></div>
-					<button id="show-all-plat">Show All</button>
-					<button id="hide-all-plat">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="individual_medacts" class="chart"></div>
 			</div>
-			<div class="row">
-				<div class="col" style="font-size: smaller">
-					<table id="ranktable" class="display" width="100%" style="font-size: smaller">
-						<caption>Clan members with rankings in the top 100</caption>
-						<thead>
-							<tr>
-								<th>Username</th>
-								<th>Skill</th>
-								<th>Rank</th>
-								<th>Value</th>
-						</thead>
-					</table>
-				</div>
-				<div class="col">
-					<div id="individual_lastactive"></div>
-				</div>
+			<div class="chart-container">
+				<div id="individual_golddonated" class="chart"></div>
+				<button id="show-all-gold">Show All</button>
+				<button id="hide-all-gold">Hide All</button>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="clan_treasury"></div>
-					<button id="show-all-treas">Show All</button>
-					<button id="hide-all-treas">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="individual_platdonated" class="chart"></div>
+				<button id="show-all-plat">Show All</button>
+				<button id="hide-all-plat">Hide All</button>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="clan_nearest_lvl"></div>
-					<button id="show-all-ncl">Show All</button>
-					<button id="hide-all-ncl">Hide All</button>
-				</div>
-				<div class="col">
-					<div id="clan_nearest_xp"></div>
-					<button id="show-all-ncx">Show All</button>
-					<button id="hide-all-ncx">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<table id="ranktable" class="display" width="100%">
+					<caption>Clan members with rankings in the top 100</caption>
+					<thead>
+						<tr>
+							<th>Username</th>
+							<th>Skill</th>
+							<th>Rank</th>
+							<th>Value</th>
+					</thead>
+				</table>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_ratios"></div>
-				</div>
+			<div class="chart-container">
+				<div id="individual_lastactive" class="chart"></div>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_kills"></div>
-					<button id="show-all-kills">Show All</button>
-					<button id="hide-all-kills">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="clan_treasury" class="chart"></div>
+				<button id="show-all-treas">Show All</button>
+				<button id="hide-all-treas">Hide All</button>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_deaths"></div>
-					<button id="show-all-deaths">Show All</button>
-					<button id="hide-all-deaths">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="clan_nearest_lvl" class="chart"></div>
+				<button id="show-all-ncl">Show All</button>
+				<button id="hide-all-ncl">Hide All</button>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_kdratio"></div>
-					<button id="show-all-kdratio">Show All</button>
-					<button id="hide-all-kdratio">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="clan_nearest_xp" class="chart"></div>
+				<button id="show-all-ncx">Show All</button>
+				<button id="hide-all-ncx">Hide All</button>
 			</div>
-			<div class="row">
-				<div class="col">
-					<div id="individual_kdpercent"></div>
-					<button id="show-all-kdpercent">Show All</button>
-					<button id="hide-all-kdpercent">Hide All</button>
-				</div>
+			<div class="chart-container">
+				<div id="individual_ratios" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="individual_kills" class="chart"></div>
+				<button id="show-all-kills">Show All</button>
+				<button id="hide-all-kills">Hide All</button>
+			</div>
+			<div class="chart-container">
+				<div id="individual_deaths" class="chart"></div>
+				<button id="show-all-deaths">Show All</button>
+				<button id="hide-all-deaths">Hide All</button>
+			</div>
+			<div class="chart-container">
+				<div id="individual_kdratio" class="chart"></div>
+				<button id="show-all-kdratio">Show All</button>
+				<button id="hide-all-kdratio">Hide All</button>
+			</div>
+			<div class="chart-container">
+				<div id="individual_kdpercent" class="chart"></div>
+				<button id="show-all-kdpercent">Show All</button>
+				<button id="hide-all-kdpercent">Hide All</button>
 			</div>
 		</div>
 	</body>
