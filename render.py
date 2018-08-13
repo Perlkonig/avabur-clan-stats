@@ -73,6 +73,12 @@ if 'clandays' in settings:
 actiondays = 0
 if 'actiondays' in settings:
     actiondays = int(settings['actiondays'])
+byslicedays = 0
+if 'byslicedays' in settings:
+    byslicedays = int(settings['byslicedays'])
+leveldays = 0
+if 'leveldays' in settings:
+    leveldays = int(settings['leveldays'])
 
 #Load/Initialize database
 try:
@@ -805,6 +811,103 @@ with open(os.path.join(settings['csvdir'], 'individual_kdratio.csv'), 'w', newli
 with open(os.path.join(settings['csvdir'], 'individual_kdpercent.csv'), 'w', newline='') as csvfile:
     csvw = csv.writer(csvfile, dialect=csv.excel)
     for row in kdpcsvout:
+        csvw.writerow(row)
+
+#xp donations by 10-level slice
+## Get latest date
+c.execute("SELECT MAX(datestamp) FROM members")
+maxdate = c.fetchone()[0]
+
+## Get list of all current members
+c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY username COLLATE NOCASE", [maxdate])
+usernames = [x[0] for x in c.fetchall()]
+
+## Get list of distinct dates
+if (byslicedays > 0):
+    c.execute("SELECT DISTINCT(datestamp) FROM members WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (byslicedays,))
+else:
+    c.execute("SELECT DISTINCT(datestamp) FROM members ORDER BY datestamp")
+alldates = [x[0] for x in c.fetchall()]
+alldates.pop(0)
+
+## Collect xp and level data
+rawdata = dict()
+for u in usernames:
+    rawdata[u] = list()
+    if (byslicedays > 0):
+        c.execute("SELECT datestamp, d_xp, level FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?)", [u, byslicedays])
+    else:
+        c.execute("SELECT datestamp, d_xp, level FROM members WHERE username=?", [u])
+    for row in c:
+        rawdata[u].append((row[0], row[1], row[2]))
+
+## Now turn that into deltas for each slice
+deltadata = dict()
+for u in usernames:
+    dates = [x[0] for x in rawdata[u]]
+    counts = [x[1] for x in rawdata[u]]
+    levels = [x[2] for x in rawdata[u]]
+    deltadata[u] = (max(levels), max(counts) - min(counts))
+levels = [x[0] for x in deltadata.values()]
+minlevel = int((min(levels) // 10) * 10)
+maxlevel = int(((max(levels) // 10) + 1) * 10)
+width = 10
+xpsum = sum([x[1] for x in deltadata.values()])
+slices = dict()
+for base in range(minlevel, maxlevel, width):
+    users = [x for x in deltadata.keys() if ( (deltadata[x][0] >= base) and (deltadata[x][0] < base+width) )]
+    slicesum = sum([deltadata[x][1] for x in users])
+    slicepc = round((slicesum / xpsum) * 10000) / 100
+    sliceavgabs = 0
+    if (len(users) > 0):
+        sliceavgabs = slicesum / len(users)
+    sliceavgpc = round((sliceavgabs / xpsum) * 10000) / 100
+    slices[base] = (users, slicepc, sliceavgpc)
+
+## Print it!
+# with open(os.path.join(settings['csvdir'], 'xpdonations_byslice.csv'), 'w', newline='') as csvfile:
+#     csvw = csv.writer(csvfile, dialect=csv.excel)
+#     csvw.writerow(["Slice","% xp donations"])
+#     for base in sorted(slices.keys()):
+#         csvw.writerow(("{}--{} ({} members)".format(base, base+9, len(slices[base][0])), slices[base][1]))
+
+### JSON version
+with open(os.path.join(settings['csvdir'], 'xpdonations_byslice.json'), 'w', newline='') as jsonfile:
+    jsonfile.write(json.dumps(slices))
+
+#Days per level
+## Get latest date
+c.execute("SELECT MAX(datestamp) FROM members")
+maxdate = c.fetchone()[0]
+
+## Get list of all current members
+c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY username COLLATE NOCASE", [maxdate])
+usernames = [x[0] for x in c.fetchall()]
+
+## Collect xp and level data
+data = list()
+for u in usernames:
+    lvldays = dict()
+    if (leveldays > 0):
+        c.execute("SELECT datestamp, level FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, leveldays])
+    else:
+        c.execute("SELECT datestamp, level FROM members WHERE username=? ORDER BY datestamp", [u])
+    for row in c:
+        level = row[1]
+        if (level in lvldays):
+            lvldays[level] += 1
+        else:
+            lvldays[level] = 1
+    avg = 0
+    if (len(lvldays) > 0):
+        avg = sum(lvldays.values()) / len(lvldays)
+    data.append((u, avg))
+
+## Print it!
+with open(os.path.join(settings['csvdir'], 'avg_days_in_level.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Member","Average days in level"])
+    for row in data:
         csvw.writerow(row)
 
 c.close()

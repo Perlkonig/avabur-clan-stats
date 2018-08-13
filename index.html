@@ -549,6 +549,84 @@
 			        }
 			    });
 			});
+			$.get('avg_days_in_level.csv', function(csv) {
+			    $('#avg_days_in_level').highcharts({
+			        chart: {
+			            type: 'column'
+			        },
+			        xAxis: {
+					    labels: {
+					        style: {
+					            fontSize: '10px'
+					        }
+					    }			        	
+			        },
+			        data: {
+			            csv: csv,
+			        },
+			        title: {
+			            text: 'Average Number of Days Per Level'
+			        },
+			        subtitle: {
+			        	text: "(data for the past 90 days; lower is generally better)"
+			        }
+			    });
+			});
+			$.get('xpdonations_byslice.json', function(j) {
+				opts = {
+					title: {
+						text: "Percent XP Donations by 10-Level Slice"
+					},
+					labels: {
+						items: [{
+							html: 'Number of members per slice',
+							style: {
+								left: '150px',
+								top: '10px',
+								color: 'black'
+							}
+						}]
+					}
+				};
+				cats = [];
+				for (x in j) {
+					var label = x + "-" + (parseInt(x)+9) + " (" + j[x][0].length + " members)";
+					cats.push(label);
+				}
+				opts["xAxis"] = {"categories": cats};
+				data_abs = [];
+				data_avg = [];
+				data_pie = [];
+				for (x in j) {
+					data_abs.push(j[x][1]);
+					data_avg.push(j[x][2]);
+					data_pie.push({
+						name: x + "-" + (parseInt(x)+9),
+						y: j[x][0].length
+					});
+				}
+				opts['series'] = [
+					{
+						type: 'column',
+						name: 'Percent of total xp donated by this slice',
+						data: data_abs
+					},
+					{
+						type: 'spline',
+						name: 'Average percent of total xp donated by each member in this slice',
+						data: data_avg
+					},
+					{
+						type: 'pie',
+						name: 'Number of members per slice',
+						data: data_pie,
+						size: 200,
+						center: [200, 150]
+					}
+				];
+
+				$('#xpdonations_byslice_combined').highcharts(opts);
+			});
 			$.get('individual_ratios.csv', function(csv) {
 			    $('#individual_ratios').highcharts({
 			        chart: {
@@ -698,6 +776,9 @@
 				<button id="hide-all-xp">Hide All</button>
 			</div>
 			<div class="chart-container">
+				<div id="xpdonations_byslice_combined" class="chart"></div>
+			</div>
+			<div class="chart-container">
 				<div id="individual_actions" class="chart"></div>
 				<button id="show-all-acts">Show All</button>
 				<button id="hide-all-acts">Hide All</button>
@@ -707,6 +788,9 @@
 			</div>
 			<div class="chart-container">
 				<div id="individual_medacts" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="avg_days_in_level" class="chart"></div>
 			</div>
 			<div class="chart-container">
 				<div id="individual_golddonated" class="chart"></div>
