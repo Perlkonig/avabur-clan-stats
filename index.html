@@ -627,6 +627,42 @@
 
 				$('#xpdonations_byslice_combined').highcharts(opts);
 			});
+			$.get('avg_days_in_level_full_levels.json', function(j) {
+				opts = {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: "Average Days in Full Levels"
+					},
+					subtitle: {
+						text: "(past 10 full levels)"
+					},
+					yAxis: {
+						title: "Days"
+					}
+				};
+				cats = [];
+				for (i=0; i<j.length; i++) {
+					x = j[i];
+					var label = x[0] + " (" + x[2] + " levels)";
+					cats.push(label);
+				}
+				opts["xAxis"] = {"categories": cats};
+				data = [];
+				for (i=0; i<j.length; i++) {
+					x = j[i];
+					data.push(x[1]);
+				}
+				opts['series'] = [
+					{
+						name: 'Average number of days in full levels',
+						data: data
+					}
+				];
+
+				$('#avg_days_in_level_full_levels').highcharts(opts);
+			});
 			$.get('individual_ratios.csv', function(csv) {
 			    $('#individual_ratios').highcharts({
 			        chart: {
@@ -791,6 +827,9 @@
 			</div>
 			<div class="chart-container">
 				<div id="avg_days_in_level" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="avg_days_in_level_full_levels" class="chart"></div>
 			</div>
 			<div class="chart-container">
 				<div id="individual_golddonated" class="chart"></div>

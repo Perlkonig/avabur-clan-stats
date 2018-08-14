@@ -79,6 +79,9 @@ if 'byslicedays' in settings:
 leveldays = 0
 if 'leveldays' in settings:
     leveldays = int(settings['leveldays'])
+leveldays_maxlvls = 0
+if 'leveldays_maxlvls' in settings:
+    leveldays_maxlvls = int(settings['leveldays_maxlvls'])
 
 #Load/Initialize database
 try:
@@ -909,6 +912,43 @@ with open(os.path.join(settings['csvdir'], 'avg_days_in_level.csv'), 'w', newlin
     csvw.writerow(["Member","Average days in level"])
     for row in data:
         csvw.writerow(row)
+
+#Days per level
+## Get latest date
+c.execute("SELECT MAX(datestamp) FROM members")
+maxdate = c.fetchone()[0]
+
+## Get list of all current members
+c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY username COLLATE NOCASE", [maxdate])
+usernames = [x[0] for x in c.fetchall()]
+
+## Collect xp and level data
+data = list()
+for u in usernames:
+    c.execute("SELECT COUNT(datestamp), level FROM members WHERE username=? GROUP BY level ORDER BY username COLLATE NOCASE;", [u])
+    days = c.fetchall()
+    #remove current level because it's not complete yet
+    days.pop()
+    #if shorter or equal to max levels, cut off the first element
+    if ( (leveldays_maxlvls == 0) or (len(days) <= leveldays_maxlvls) ):
+        days.pop(0)
+    #now trim to length
+    while (len(days) > leveldays_maxlvls):
+        days.pop(0)
+    lvldays = [x[0] for x in days]
+    avg = 0
+    if (len(lvldays) > 0):
+        avg = sum(lvldays) / len(lvldays)
+    data.append((u, avg, len(days)))
+
+## Print it!
+with open(os.path.join(settings['csvdir'], 'avg_days_in_level_full_levels.json'), 'w', newline='') as csvfile:
+    csvfile.write(json.dumps(data))
+    # csvw = csv.writer(csvfile, dialect=csv.excel)
+    # csvw.writerow(["Member","Average days in level"])
+    # for row in data:
+    #     csvw.writerow(row)
+
 
 c.close()
 conn.close()
