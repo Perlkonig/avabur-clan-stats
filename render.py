@@ -865,7 +865,7 @@ for base in range(minlevel, maxlevel, width):
     if (len(users) > 0):
         sliceavgabs = slicesum / len(users)
     sliceavgpc = round((sliceavgabs / xpsum) * 10000) / 100
-    slices[base] = (users, slicepc, sliceavgpc)
+    slices[base] = (sorted(users), slicepc, sliceavgpc)
 
 ## Print it!
 # with open(os.path.join(settings['csvdir'], 'xpdonations_byslice.csv'), 'w', newline='') as csvfile:
@@ -878,40 +878,40 @@ for base in range(minlevel, maxlevel, width):
 with open(os.path.join(settings['csvdir'], 'xpdonations_byslice.json'), 'w', newline='') as jsonfile:
     jsonfile.write(json.dumps(slices))
 
-#Days per level
-## Get latest date
-c.execute("SELECT MAX(datestamp) FROM members")
-maxdate = c.fetchone()[0]
+# #Days per level
+# ## Get latest date
+# c.execute("SELECT MAX(datestamp) FROM members")
+# maxdate = c.fetchone()[0]
 
-## Get list of all current members
-c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY username COLLATE NOCASE", [maxdate])
-usernames = [x[0] for x in c.fetchall()]
+# ## Get list of all current members
+# c.execute("SELECT DISTINCT(username) FROM members WHERE datestamp=? ORDER BY username COLLATE NOCASE", [maxdate])
+# usernames = [x[0] for x in c.fetchall()]
 
-## Collect xp and level data
-data = list()
-for u in usernames:
-    lvldays = dict()
-    if (leveldays > 0):
-        c.execute("SELECT datestamp, level FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, leveldays])
-    else:
-        c.execute("SELECT datestamp, level FROM members WHERE username=? ORDER BY datestamp", [u])
-    for row in c:
-        level = row[1]
-        if (level in lvldays):
-            lvldays[level] += 1
-        else:
-            lvldays[level] = 1
-    avg = 0
-    if (len(lvldays) > 0):
-        avg = sum(lvldays.values()) / len(lvldays)
-    data.append((u, avg))
+# ## Collect xp and level data
+# data = list()
+# for u in usernames:
+#     lvldays = dict()
+#     if (leveldays > 0):
+#         c.execute("SELECT datestamp, level FROM members WHERE username=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", [u, leveldays])
+#     else:
+#         c.execute("SELECT datestamp, level FROM members WHERE username=? ORDER BY datestamp", [u])
+#     for row in c:
+#         level = row[1]
+#         if (level in lvldays):
+#             lvldays[level] += 1
+#         else:
+#             lvldays[level] = 1
+#     avg = 0
+#     if (len(lvldays) > 0):
+#         avg = sum(lvldays.values()) / len(lvldays)
+#     data.append((u, avg))
 
-## Print it!
-with open(os.path.join(settings['csvdir'], 'avg_days_in_level.csv'), 'w', newline='') as csvfile:
-    csvw = csv.writer(csvfile, dialect=csv.excel)
-    csvw.writerow(["Member","Average days in level"])
-    for row in data:
-        csvw.writerow(row)
+# ## Print it!
+# with open(os.path.join(settings['csvdir'], 'avg_days_in_level.csv'), 'w', newline='') as csvfile:
+#     csvw = csv.writer(csvfile, dialect=csv.excel)
+#     csvw.writerow(["Member","Average days in level"])
+#     for row in data:
+#         csvw.writerow(row)
 
 #Days per level
 ## Get latest date

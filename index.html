@@ -549,33 +549,36 @@
 			        }
 			    });
 			});
-			$.get('avg_days_in_level.csv', function(csv) {
-			    $('#avg_days_in_level').highcharts({
-			        chart: {
-			            type: 'column'
-			        },
-			        xAxis: {
-					    labels: {
-					        style: {
-					            fontSize: '10px'
-					        }
-					    }			        	
-			        },
-			        data: {
-			            csv: csv,
-			        },
-			        title: {
-			            text: 'Average Number of Days Per Level'
-			        },
-			        subtitle: {
-			        	text: "(data for the past 90 days; lower is generally better)"
-			        }
-			    });
-			});
+			// $.get('avg_days_in_level.csv', function(csv) {
+			//     $('#avg_days_in_level').highcharts({
+			//         chart: {
+			//             type: 'column'
+			//         },
+			//         xAxis: {
+			// 		    labels: {
+			// 		        style: {
+			// 		            fontSize: '10px'
+			// 		        }
+			// 		    }			        	
+			//         },
+			//         data: {
+			//             csv: csv,
+			//         },
+			//         title: {
+			//             text: 'Average Number of Days Per Level'
+			//         },
+			//         subtitle: {
+			//         	text: "(data for the past 90 days; lower is generally better)"
+			//         }
+			//     });
+			// });
 			$.get('xpdonations_byslice.json', function(j) {
 				opts = {
 					title: {
 						text: "Percent XP Donations by 10-Level Slice"
+					},
+					subtitle: {
+						text: "(data from last 30 days)"
 					},
 					labels: {
 						items: [{
@@ -586,7 +589,7 @@
 								color: 'black'
 							}
 						}]
-					}
+					},
 				};
 				cats = [];
 				for (x in j) {
@@ -598,30 +601,40 @@
 				data_avg = [];
 				data_pie = [];
 				for (x in j) {
-					data_abs.push(j[x][1]);
-					data_avg.push(j[x][2]);
+					data_abs.push({y: j[x][1], userlist: j[x][0].join(", ")});
+					data_avg.push({y: j[x][2], userlist: j[x][0].join(", ")});
 					data_pie.push({
 						name: x + "-" + (parseInt(x)+9),
-						y: j[x][0].length
+						y: j[x][0].length,
+						userlist: j[x][0].join(", ")
 					});
 				}
 				opts['series'] = [
 					{
 						type: 'column',
 						name: 'Percent of total xp donated by this slice',
-						data: data_abs
+						data: data_abs,
+						tooltip: {
+							pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/><span>({point.userlist})</span><br/>',
+						}
 					},
 					{
 						type: 'spline',
 						name: 'Average percent of total xp donated by each member in this slice',
-						data: data_avg
+						data: data_avg,
+						tooltip: {
+							pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/><span>({point.userlist})</span><br/>',
+						}
 					},
 					{
 						type: 'pie',
 						name: 'Number of members per slice',
 						data: data_pie,
 						size: 200,
-						center: [200, 150]
+						center: [200, 150],
+						tooltip: {
+							pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/><span>({point.userlist})</span><br/>',
+						}
 					}
 				];
 
@@ -645,7 +658,12 @@
 				cats = [];
 				for (i=0; i<j.length; i++) {
 					x = j[i];
-					var label = x[0] + " (" + x[2] + " levels)";
+					var label;
+					if (x[2] == 10) {
+						label = x[0];
+					} else {
+						label = x[0] + " (" + x[2] + " levels)";
+					}
 					cats.push(label);
 				}
 				opts["xAxis"] = {"categories": cats};
@@ -824,9 +842,6 @@
 			</div>
 			<div class="chart-container">
 				<div id="individual_medacts" class="chart"></div>
-			</div>
-			<div class="chart-container">
-				<div id="avg_days_in_level" class="chart"></div>
 			</div>
 			<div class="chart-container">
 				<div id="avg_days_in_level_full_levels" class="chart"></div>
