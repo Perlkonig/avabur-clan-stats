@@ -5,6 +5,7 @@ import sqlite3
 import csv
 import os
 import math
+import numpy
 
 def level2xp(lvl):
     #up to level 111
@@ -22,7 +23,7 @@ def level2xp(lvl):
     return xp
 
 def calcDeltas(lst):
-    if lst == None:
+    if (lst == None) or (len(lst) == 0):
         return None
     elif len(lst) == 1:
         return [0]
@@ -54,6 +55,21 @@ def trimOutliers(lst, percent, ceil=True):
     else:
         return lst[count:len(lst)-count]
 
+def trimDataByStd(lst, maxdev):
+    flat = [x[1] for x in lst]
+    std = numpy.std(flat)
+    if std == 0:
+        return lst
+    mean = numpy.mean(flat)
+    # print("Mean: {}, Std: {}".format(mean, std))
+    result = list()
+    for x in lst:
+        if abs(x[1] - mean) / std > maxdev:
+            result.append((x[0], None))
+        else:
+            result.append(x)
+    return result
+
 def calcMedian(lst):
     lst = sorted(lst)
     if (len(lst) % 2 == 1):
@@ -82,6 +98,9 @@ if 'leveldays' in settings:
 leveldays_maxlvls = 0
 if 'leveldays_maxlvls' in settings:
     leveldays_maxlvls = int(settings['leveldays_maxlvls'])
+allclans = ["Us"]
+for rival in settings['rivals']:
+    allclans.append(rival['name'])
 
 #Load/Initialize database
 try:
@@ -91,25 +110,40 @@ except sqlite3.DatabaseError as e:
 c = conn.cursor()
 
 #xp gained
+xpdata = dict()
 if (clandays > 0):
-    c.execute("SELECT datestamp, xp FROM clan WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+    c.execute("SELECT datestamp, xp, level FROM clan WHERE level IS NOT NULL AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
 else:
-    c.execute("SELECT datestamp, xp FROM clan ORDER BY datestamp")
+    c.execute("SELECT datestamp, xp, level FROM clan WHERE level IS NOT NULL ORDER BY datestamp")
 recs = c.fetchall()
 dates = [x[0] for x in recs]
-xps = [x[1] for x in recs]
+xps = [(level2xp(x[2]) + x[1]) for x in recs]
 xpdeltas = calcDeltas(xps)
+for entry in buildData(dates, xpdeltas):
+    xpdata[entry[0]] = {'Us': entry[1]}
 
-## Try to trim really wide swings
-for i in range(len(xpdeltas)):
-    if xpdeltas[i] < 0:
-        xpdeltas[i] = None
+for rival in settings['rivals']:
+    if (clandays > 0):
+        c.execute("SELECT datestamp, xp, level FROM rivalclans WHERE clanid=? AND (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (rival['id'], clandays))
+    else:
+        c.execute("SELECT datestamp, xp, level FROM rivalclans WHERE clanid=? ORDER BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    xps = [(level2xp(x[2]) + x[1]) for x in recs]
+    xpdeltas = calcDeltas(xps)
+    for entry in buildData(dates, xpdeltas):
+        xpdata[entry[0]][rival['name']] = entry[1]
 
-xpdata = buildData(dates, xpdeltas)
 with open(os.path.join(settings['csvdir'], 'clan_xp.csv'), 'w', newline='') as csvfile:
     csvw = csv.writer(csvfile, dialect=csv.excel)
-    csvw.writerow(["Date", "Experience Gain"])
-    for row in xpdata:
+    csvw.writerow(["Date"] + allclans)
+    for date in xpdata.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in xpdata[date]:
+                row.append(xpdata[date][clan])
+            else:
+                row.append(None)
         csvw.writerow(row)
 
 #total actions
@@ -363,14 +397,6 @@ for d in alldates:
 with open(os.path.join(settings['csvdir'], 'individual_xpdonated.csv'), 'w', newline='') as csvfile:
     csvw = csv.writer(csvfile, dialect=csv.excel)
     for row in csvout:
-        csvw.writerow(row)
-
-## Now overwrite the clan xp gain with aggregate xp donations
-xpdata = buildData(xpdates, xpdeltas)
-with open(os.path.join(settings['csvdir'], 'clan_xp.csv'), 'w', newline='') as csvfile:
-    csvw = csv.writer(csvfile, dialect=csv.excel)
-    csvw.writerow(["Date", "Experience Gain"])
-    for row in xpdata:
         csvw.writerow(row)
 
 #per-user gold donations
@@ -631,39 +657,39 @@ with open(os.path.join(settings['csvdir'], 'ranks.json'), 'w', newline='') as cs
     json.dump(ranks, csvfile)
 
 #Nearest clans
-lvldata = list()
-xpdata = list()
-if (clandays > 0):
-    c.execute("SELECT datestamp, ours, above, below FROM nearestclans WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
-else:
-    c.execute("SELECT datestamp, ours, above, below FROM nearestclans ORDER BY datestamp")
-for row in c:
-    lvlnode = [row[0]]
-    xpnode = [row[0]]
-    if row[2] is not None:
-        lvlnode.append(abs(row[1] - row[2]))
-        xpnode.append(abs(level2xp(row[1]) - level2xp(row[2])))
-    else:
-        lvlnode.append(None)
-        xpnode.append(None)
-    if row[3] is not None:
-        lvlnode.append(abs(row[1] - row[3]))
-        xpnode.append(abs(level2xp(row[1]) - level2xp(row[3])))
-    else:
-        lvlnode.append(None)
-        xpnode.append(None)
-    lvldata.append(lvlnode)
-    xpdata.append(xpnode)
-with open(os.path.join(settings['csvdir'], 'clan_nearest_lvl.csv'), 'w', newline='') as csvfile:
-    csvw = csv.writer(csvfile, dialect=csv.excel)
-    csvw.writerow(["Date","Above", "Below"])
-    for row in lvldata:
-        csvw.writerow(row)
-with open(os.path.join(settings['csvdir'], 'clan_nearest_xp.csv'), 'w', newline='') as csvfile:
-    csvw = csv.writer(csvfile, dialect=csv.excel)
-    csvw.writerow(["Date","Above", "Below"])
-    for row in xpdata:
-        csvw.writerow(row)
+# lvldata = list()
+# xpdata = list()
+# if (clandays > 0):
+#     c.execute("SELECT datestamp, ours, above, below FROM nearestclans WHERE (julianday('now') - julianday(datestamp) <= ?) ORDER BY datestamp", (clandays,))
+# else:
+#     c.execute("SELECT datestamp, ours, above, below FROM nearestclans ORDER BY datestamp")
+# for row in c:
+#     lvlnode = [row[0]]
+#     xpnode = [row[0]]
+#     if row[2] is not None:
+#         lvlnode.append(abs(row[1] - row[2]))
+#         xpnode.append(abs(level2xp(row[1]) - level2xp(row[2])))
+#     else:
+#         lvlnode.append(None)
+#         xpnode.append(None)
+#     if row[3] is not None:
+#         lvlnode.append(abs(row[1] - row[3]))
+#         xpnode.append(abs(level2xp(row[1]) - level2xp(row[3])))
+#     else:
+#         lvlnode.append(None)
+#         xpnode.append(None)
+#     lvldata.append(lvlnode)
+#     xpdata.append(xpnode)
+# with open(os.path.join(settings['csvdir'], 'clan_nearest_lvl.csv'), 'w', newline='') as csvfile:
+#     csvw = csv.writer(csvfile, dialect=csv.excel)
+#     csvw.writerow(["Date","Above", "Below"])
+#     for row in lvldata:
+#         csvw.writerow(row)
+# with open(os.path.join(settings['csvdir'], 'clan_nearest_xp.csv'), 'w', newline='') as csvfile:
+#     csvw = csv.writer(csvfile, dialect=csv.excel)
+#     csvw.writerow(["Date","Above", "Below"])
+#     for row in xpdata:
+#         csvw.writerow(row)
 
 #Kill-to-death ratio
 ## First get maxdate
@@ -930,7 +956,7 @@ for u in usernames:
     #remove current level because it's not complete yet
     days.pop()
     #if shorter or equal to max levels, cut off the first element
-    if ( (leveldays_maxlvls == 0) or (len(days) <= leveldays_maxlvls) ):
+    if ( (len(days) > 0) and ( (leveldays_maxlvls == 0) or (len(days) <= leveldays_maxlvls) ) ):
         days.pop(0)
     #now trim to length
     while (len(days) > leveldays_maxlvls):
@@ -948,6 +974,260 @@ with open(os.path.join(settings['csvdir'], 'avg_days_in_level_full_levels.json')
     # csvw.writerow(["Member","Average days in level"])
     # for row in data:
     #     csvw.writerow(row)
+
+# RIVAL SUMMARY GRAPHS
+
+## Total XP
+summary = dict()
+c.execute("SELECT datestamp, level, xp FROM clan WHERE level IS NOT NULL ORDER BY datestamp")
+recs = c.fetchall()
+dates = [x[0] for x in recs]
+xp = [(level2xp(x[1]) + x[2]) for x in recs]
+for entry in buildData(dates, xp):
+    summary[entry[0]] = {"Us": entry[1]}
+
+for rival in settings['rivals']:
+    c.execute("SELECT datestamp, level, xp FROM rivalclans WHERE clanid=? ORDER BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    xp = [(level2xp(x[1]) + x[2]) for x in recs]
+    for entry in buildData(dates, xp):
+        if entry[0] in summary:
+            summary[entry[0]][rival['name']] = entry[1]
+        else:
+            summary[entry[0]] = {rival['name']: entry[1]}
+
+with open(os.path.join(settings['csvdir'], 'rivals_totalxp.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Date"] + allclans)
+    for date in summary.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in summary[date]:
+                row.append(summary[date][clan])
+            else:
+                row.append(None)
+        csvw.writerow(row)
+
+
+## Total actions
+summary = dict()
+maxdev = 2.0
+c.execute("SELECT datestamp, SUM(totalacts) FROM members GROUP BY datestamp")
+recs = c.fetchall()
+dates = [x[0] for x in recs]
+acts = [x[1] for x in recs]
+actdeltas = calcDeltas(acts)
+data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+for entry in data:
+    summary[entry[0]] = {"Us": entry[1]}
+
+for rival in settings['rivals']:
+    c.execute("SELECT datestamp, SUM(totalacts) FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    acts = [x[1] for x in recs]
+    actdeltas = calcDeltas(acts)
+    data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+    for entry in data:
+        if entry[0] in summary:
+            summary[entry[0]][rival['name']] = entry[1]
+        else:
+            summary[entry[0]] = {rival['name']: entry[1]}
+
+with open(os.path.join(settings['csvdir'], 'rivals_actions.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Date"] + allclans)
+    for date in summary.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in summary[date]:
+                row.append(summary[date][clan])
+            else:
+                row.append(None)
+        csvw.writerow(row)
+
+## Total levels
+summary = dict()
+c.execute("SELECT datestamp, SUM(level) FROM members GROUP BY datestamp")
+recs = c.fetchall()
+dates = [x[0] for x in recs]
+lvls = [x[1] for x in recs]
+data = buildData(dates, lvls)
+for entry in data:
+    summary[entry[0]] = {"Us": entry[1]}
+
+for rival in settings['rivals']:
+    c.execute("SELECT datestamp, SUM(level) FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    lvls = [x[1] for x in recs]
+    data = buildData(dates, lvls)
+    for entry in data:
+        if entry[0] in summary:
+            summary[entry[0]][rival['name']] = entry[1]
+        else:
+            summary[entry[0]] = {rival['name']: entry[1]}
+
+with open(os.path.join(settings['csvdir'], 'rivals_levels.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Date"] + allclans)
+    for date in summary.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in summary[date]:
+                row.append(summary[date][clan])
+            else:
+                row.append(None)
+        csvw.writerow(row)
+
+## Kills
+summary = dict()
+maxdev = 1.0
+c.execute("SELECT datestamp, SUM(kills) FROM members GROUP BY datestamp")
+recs = c.fetchall()
+dates = [x[0] for x in recs]
+acts = [x[1] for x in recs]
+actdeltas = calcDeltas(acts)
+data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+for entry in data:
+    summary[entry[0]] = {"Us": entry[1]}
+
+for rival in settings['rivals']:
+    c.execute("SELECT datestamp, SUM(kills) FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    acts = [x[1] for x in recs]
+    actdeltas = calcDeltas(acts)
+    data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+    for entry in data:
+        if entry[0] in summary:
+            summary[entry[0]][rival['name']] = entry[1]
+        else:
+            summary[entry[0]] = {rival['name']: entry[1]}
+
+with open(os.path.join(settings['csvdir'], 'rivals_kills.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Date"] + allclans)
+    for date in summary.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in summary[date]:
+                row.append(summary[date][clan])
+            else:
+                row.append(None)
+        csvw.writerow(row)
+
+## Deaths
+summary = dict()
+maxdev = 1.0
+c.execute("SELECT datestamp, SUM(deaths) FROM members GROUP BY datestamp")
+recs = c.fetchall()
+dates = [x[0] for x in recs]
+acts = [x[1] for x in recs]
+actdeltas = calcDeltas(acts)
+data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+for entry in data:
+    summary[entry[0]] = {"Us": entry[1]}
+
+for rival in settings['rivals']:
+    c.execute("SELECT datestamp, SUM(deaths) FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    acts = [x[1] for x in recs]
+    actdeltas = calcDeltas(acts)
+    data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+    for entry in data:
+        if entry[0] in summary:
+            summary[entry[0]][rival['name']] = entry[1]
+        else:
+            summary[entry[0]] = {rival['name']: entry[1]}
+
+with open(os.path.join(settings['csvdir'], 'rivals_deaths.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Date"] + allclans)
+    for date in summary.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in summary[date]:
+                row.append(summary[date][clan])
+            else:
+                row.append(None)
+        csvw.writerow(row)
+
+## Harvests
+summary = dict()
+maxdev = 1.0
+c.execute("SELECT datestamp, (SUM(fishing) + SUM(woodcutting) + SUM(mining) + SUM(stonecutting)) AS harvests FROM members GROUP BY datestamp")
+recs = c.fetchall()
+dates = [x[0] for x in recs]
+acts = [x[1] for x in recs]
+actdeltas = calcDeltas(acts)
+data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+for entry in data:
+    summary[entry[0]] = {"Us": entry[1]}
+
+for rival in settings['rivals']:
+    c.execute("SELECT datestamp, (SUM(fishing) + SUM(woodcutting) + SUM(mining) + SUM(stonecutting)) AS harvests FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    acts = [x[1] for x in recs]
+    actdeltas = calcDeltas(acts)
+    data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+    for entry in data:
+        if entry[0] in summary:
+            summary[entry[0]][rival['name']] = entry[1]
+        else:
+            summary[entry[0]] = {rival['name']: entry[1]}
+
+with open(os.path.join(settings['csvdir'], 'rivals_harvests.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Date"] + allclans)
+    for date in summary.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in summary[date]:
+                row.append(summary[date][clan])
+            else:
+                row.append(None)
+        csvw.writerow(row)
+
+## Crafts/Carves
+summary = dict()
+maxdev = 1.0
+c.execute("SELECT datestamp, (SUM(craftingacts) + SUM(carvingacts)) AS harvests FROM members GROUP BY datestamp")
+recs = c.fetchall()
+dates = [x[0] for x in recs]
+acts = [x[1] for x in recs]
+actdeltas = calcDeltas(acts)
+data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+for entry in data:
+    summary[entry[0]] = {"Us": entry[1]}
+
+for rival in settings['rivals']:
+    c.execute("SELECT datestamp, (SUM(craftingacts) + SUM(carvingacts)) AS harvests FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
+    recs = c.fetchall()
+    dates = [x[0] for x in recs]
+    acts = [x[1] for x in recs]
+    actdeltas = calcDeltas(acts)
+    data = trimDataByStd(buildData(dates, actdeltas), maxdev)
+    for entry in data:
+        if entry[0] in summary:
+            summary[entry[0]][rival['name']] = entry[1]
+        else:
+            summary[entry[0]] = {rival['name']: entry[1]}
+
+with open(os.path.join(settings['csvdir'], 'rivals_crafts.csv'), 'w', newline='') as csvfile:
+    csvw = csv.writer(csvfile, dialect=csv.excel)
+    csvw.writerow(["Date"] + allclans)
+    for date in summary.keys():
+        row = [date]
+        for clan in allclans:
+            if clan in summary[date]:
+                row.append(summary[date][clan])
+            else:
+                row.append(None)
+        csvw.writerow(row)
 
 
 c.close()

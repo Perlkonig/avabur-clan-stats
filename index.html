@@ -45,6 +45,41 @@
 		</style>
 
 		<script>
+			var rangeButtons = [
+				{
+					type: 'week',
+					count: 1,
+					text: '1w'
+				},
+				{
+				    type: 'month',
+				    count: 1,
+				    text: '1m'
+				}, 
+				{
+				    type: 'month',
+				    count: 3,
+				    text: '3m'
+				}, 
+				{
+				    type: 'month',
+				    count: 6,
+				    text: '6m'
+				}, 
+				{
+				    type: 'ytd',
+				    text: 'YTD'
+				}, 
+				{
+				    type: 'year',
+				    count: 1,
+				    text: '1y'
+				}, 
+				{
+				    type: 'all',
+				    text: 'All'
+				}
+			];
 			$.get('clan_xp.csv', function(csv) {
 			    $('#clan_xp').highcharts({
 			        chart: {
@@ -52,7 +87,9 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -63,7 +100,7 @@
 			        },
 			        subtitle: {
 			        	// text: "(Days we level aren't shown, and the day after we level will be abnormally low)"
-			        	text: "(The sum of xp donations; inaccurate when membership changes)"
+			        	//text: "(The sum of xp donations; inaccurate when membership changes)"
 			        }
 			    });
 			});
@@ -74,7 +111,9 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -98,7 +137,9 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -122,7 +163,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -146,7 +188,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -197,7 +240,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -218,6 +262,163 @@
 						ser.show();
 					});
 				});
+			});
+			$.get('rivals_totalxp.csv', function(csv) {
+			    $('#rivals_totalxp').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0,
+						buttons: rangeButtons
+			        },
+			        data: {
+			            csv: csv,
+			            dateFormat: 'YYYY/mm/dd'
+			        },
+			        title: {
+			            text: 'Total Clan XP'
+			        },
+			        subtitle: {
+			        	text: "The lines are only going to go up. What we care about is the gap between the lines."
+			        }
+			    });
+			});
+			$.get('rivals_actions.csv', function(csv) {
+			    $('#rivals_actions').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0,
+						buttons: rangeButtons
+			        },
+			        data: {
+			            csv: csv,
+			            dateFormat: 'YYYY/mm/dd'
+			        },
+			        title: {
+			            text: 'Total Daily Actions'
+			        },
+			        subtitle: {
+			        	text: "Clan data is derived from member data. This makes the data unreliable when membership changes. Outlying points have been trimmed."
+			        }
+			    });
+			});
+			$.get('rivals_kills.csv', function(csv) {
+			    $('#rivals_kills').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0,
+						buttons: rangeButtons
+			        },
+			        data: {
+			            csv: csv,
+			            dateFormat: 'YYYY/mm/dd'
+			        },
+			        title: {
+			            text: 'Daily Kills'
+			        },
+			        subtitle: {
+			        	text: "Clan data is derived from member data. This makes the data unreliable when membership changes. Outlying points have been trimmed."
+			        }
+			    });
+			});
+			$.get('rivals_deaths.csv', function(csv) {
+			    $('#rivals_deaths').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0,
+						buttons: rangeButtons,
+			        	buttons: rangeButtons
+			        },
+			        data: {
+			            csv: csv,
+			            dateFormat: 'YYYY/mm/dd'
+			        },
+			        title: {
+			            text: 'Daily Deaths'
+			        },
+			        subtitle: {
+			        	text: "Clan data is derived from member data. This makes the data unreliable when membership changes. Outlying points have been trimmed."
+			        }
+			    });
+			});
+			$.get('rivals_harvests.csv', function(csv) {
+			    $('#rivals_harvests').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0,
+						buttons: rangeButtons,
+			        	buttons: rangeButtons
+			        },
+			        data: {
+			            csv: csv,
+			            dateFormat: 'YYYY/mm/dd'
+			        },
+			        title: {
+			            text: 'Daily Harvests'
+			        },
+			        subtitle: {
+			        	text: "Clan data is derived from member data. This makes the data unreliable when membership changes. Outlying points have been trimmed."
+			        }
+			    });
+			});
+			$.get('rivals_crafts.csv', function(csv) {
+			    $('#rivals_crafts').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0,
+						buttons: rangeButtons,
+			        	buttons: rangeButtons
+			        },
+			        data: {
+			            csv: csv,
+			            dateFormat: 'YYYY/mm/dd'
+			        },
+			        title: {
+			            text: 'Daily Crafts & Carves'
+			        },
+			        subtitle: {
+			        	text: "Clan data is derived from member data. This makes the data unreliable when membership changes. Outlying points have been trimmed."
+			        }
+			    });
+			});
+			$.get('rivals_levels.csv', function(csv) {
+			    $('#rivals_levels').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        rangeSelector: {
+			        	enabled: true,
+			        	selected: 0,
+						buttons: rangeButtons
+			        },
+			        data: {
+			            csv: csv,
+			            dateFormat: 'YYYY/mm/dd'
+			        },
+			        title: {
+			            text: 'Total Membership Level'
+			        },
+			        subtitle: {
+			        	text: "Clan data is derived from member data. This makes the data unreliable when membership changes."
+			        }
+			    });
 			});
 			/*
 			$.get('individual_stats.csv', function(csv) {
@@ -253,7 +454,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -282,7 +484,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -314,7 +517,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -346,7 +550,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        plotOptions: {
 			        	series: {
@@ -383,7 +588,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        plotOptions: {
 			        	series: {
@@ -420,7 +626,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -449,7 +656,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -478,7 +686,8 @@
 			        },
 			        rangeSelector: {
 			        	enabled: true,
-			        	selected: 0
+			        	selected: 0,
+						buttons: rangeButtons
 			        },
 			        data: {
 			            csv: csv,
@@ -733,73 +942,75 @@
 			        }
 			    });
 			});
-			$.get('clan_nearest_lvl.csv', function(csv) {
-			    $('#clan_nearest_lvl').highcharts({
-			        chart: {
-			            type: 'line'
-			        },
-			        rangeSelector: {
-			        	enabled: true,
-			        	selected: 0
-			        },
-			        data: {
-			            csv: csv,
-			            dateFormat: 'YYYY/mm/dd'
-			        },
-			        title: {
-			            text: 'Level Difference With Nearest Clans'
-			        },
-			        credits: {
-			        	text: 'The "Above" line should be sloping towards zero. The "Below" line should be sloping towards infinity.'
-			        }
-			    });
-				var chart = $('#clan_nearest_lvl').highcharts();
-				$(document).on('click', '#hide-all-ncl', function() {
-					$.each(chart.series, function(i, ser) {
-						ser.hide();
-					});
-				});
-				$(document).on('click', '#show-all-ncl', function() {
-					$.each(chart.series, function(i, ser) {
-						ser.show();
-					});
-				});
-			});
-			$.get('clan_nearest_xp.csv', function(csv) {
-			    $('#clan_nearest_xp').highcharts({
-			        chart: {
-			            type: 'line'
-			        },
-			        rangeSelector: {
-			        	enabled: true,
-			        	selected: 0
-			        },
-			        data: {
-			            csv: csv,
-			            dateFormat: 'YYYY/mm/dd'
-			        },
-			        title: {
-			            text: 'XP Difference With Nearest Clans'
-			        },
-			        subtitle: {
-			        	text: 'This is the more accurate graph'
-			        },
-			        credits: {
-			        	text: 'The "Above" line should be sloping towards zero. The "Below" line should be sloping towards infinity.'
-			        }
-			    });
-				var chart = $('#clan_nearest_xp').highcharts();
-				$(document).on('click', '#hide-all-ncx', function() {
-					$.each(chart.series, function(i, ser) {
-						ser.hide();
-					});
-				});
-				$(document).on('click', '#show-all-ncx', function() {
-					$.each(chart.series, function(i, ser) {
-						ser.show();
-					});
-				});
-			});
+			// $.get('clan_nearest_lvl.csv', function(csv) {
+			//     $('#clan_nearest_lvl').highcharts({
+			//         chart: {
+			//             type: 'line'
+			//         },
+			//         rangeSelector: {
+			//         	enabled: true,
+			//         	selected: 0,
+			// 			buttons: rangeButtons
+			//         },
+			//         data: {
+			//             csv: csv,
+			//             dateFormat: 'YYYY/mm/dd'
+			//         },
+			//         title: {
+			//             text: 'Level Difference With Nearest Clans'
+			//         },
+			//         credits: {
+			//         	text: 'The "Above" line should be sloping towards zero. The "Below" line should be sloping towards infinity.'
+			//         }
+			//     });
+			// 	var chart = $('#clan_nearest_lvl').highcharts();
+			// 	$(document).on('click', '#hide-all-ncl', function() {
+			// 		$.each(chart.series, function(i, ser) {
+			// 			ser.hide();
+			// 		});
+			// 	});
+			// 	$(document).on('click', '#show-all-ncl', function() {
+			// 		$.each(chart.series, function(i, ser) {
+			// 			ser.show();
+			// 		});
+			// 	});
+			// });
+			// $.get('clan_nearest_xp.csv', function(csv) {
+			//     $('#clan_nearest_xp').highcharts({
+			//         chart: {
+			//             type: 'line'
+			//         },
+			//         rangeSelector: {
+			//         	enabled: true,
+			//         	selected: 0,
+			// 			buttons: rangeButtons
+			//         },
+			//         data: {
+			//             csv: csv,
+			//             dateFormat: 'YYYY/mm/dd'
+			//         },
+			//         title: {
+			//             text: 'XP Difference With Nearest Clans'
+			//         },
+			//         subtitle: {
+			//         	text: 'This is the more accurate graph'
+			//         },
+			//         credits: {
+			//         	text: 'The "Above" line should be sloping towards zero. The "Below" line should be sloping towards infinity.'
+			//         }
+			//     });
+			// 	var chart = $('#clan_nearest_xp').highcharts();
+			// 	$(document).on('click', '#hide-all-ncx', function() {
+			// 		$.each(chart.series, function(i, ser) {
+			// 			ser.hide();
+			// 		});
+			// 	});
+			// 	$(document).on('click', '#show-all-ncx', function() {
+			// 		$.each(chart.series, function(i, ser) {
+			// 			ser.show();
+			// 		});
+			// 	});
+			// });
 			$(document).ready( function () {
 				$('#ranktable').DataTable( {
 					'ajax': 'ranks.json',
@@ -876,16 +1087,11 @@
 				<button id="show-all-treas">Show All</button>
 				<button id="hide-all-treas">Hide All</button>
 			</div>
-			<div class="chart-container">
-				<div id="clan_nearest_lvl" class="chart"></div>
-				<button id="show-all-ncl">Show All</button>
-				<button id="hide-all-ncl">Hide All</button>
-			</div>
-			<div class="chart-container">
+<!-- 			<div class="chart-container">
 				<div id="clan_nearest_xp" class="chart"></div>
 				<button id="show-all-ncx">Show All</button>
 				<button id="hide-all-ncx">Hide All</button>
-			</div>
+			</div> -->
 			<div class="chart-container">
 				<div id="individual_ratios" class="chart"></div>
 			</div>
@@ -908,6 +1114,27 @@
 				<div id="individual_kdpercent" class="chart"></div>
 				<button id="show-all-kdpercent">Show All</button>
 				<button id="hide-all-kdpercent">Hide All</button>
+			</div>
+			<div class="chart-container">
+				<div id="rivals_totalxp" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="rivals_actions" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="rivals_kills" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="rivals_deaths" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="rivals_harvests" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="rivals_crafts" class="chart"></div>
+			</div>
+			<div class="chart-container">
+				<div id="rivals_levels" class="chart"></div>
 			</div>
 		</div>
 	</body>
