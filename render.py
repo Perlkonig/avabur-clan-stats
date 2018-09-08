@@ -1158,7 +1158,7 @@ with open(os.path.join(settings['csvdir'], 'rivals_deaths.csv'), 'w', newline=''
 ## Harvests
 summary = dict()
 maxdev = 1.0
-c.execute("SELECT datestamp, (SUM(fishing) + SUM(woodcutting) + SUM(mining) + SUM(stonecutting)) AS harvests FROM members GROUP BY datestamp")
+c.execute("SELECT datestamp, SUM(harvests) FROM members GROUP BY datestamp")
 recs = c.fetchall()
 dates = [x[0] for x in recs]
 acts = [x[1] for x in recs]
@@ -1168,7 +1168,7 @@ for entry in data:
     summary[entry[0]] = {"Us": entry[1]}
 
 for rival in settings['rivals']:
-    c.execute("SELECT datestamp, (SUM(fishing) + SUM(woodcutting) + SUM(mining) + SUM(stonecutting)) AS harvests FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
+    c.execute("SELECT datestamp, SUM(harvests) FROM rivals WHERE clanid=? GROUP BY datestamp", (rival['id'],))
     recs = c.fetchall()
     dates = [x[0] for x in recs]
     acts = [x[1] for x in recs]
